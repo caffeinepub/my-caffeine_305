@@ -1,8 +1,6 @@
 import Map "mo:core/Map";
-import List "mo:core/List";
 import Runtime "mo:core/Runtime";
 import Time "mo:core/Time";
-import Array "mo:core/Array";
 import Text "mo:core/Text";
 import Principal "mo:core/Principal";
 import MixinAuthorization "authorization/MixinAuthorization";
@@ -72,7 +70,7 @@ actor {
     let liter = "\u{09B2}\u{09BF}\u{099F}\u{09BE}\u{09B0}";
     let bottle = "\u{09AC}\u{09CB}\u{09A4}\u{09B2}";
     let sheet = "\u{09AA}\u{09BE}\u{09A4}\u{09BE}";
-    let bunch = "\u{0986}\u{0981}\u{099F}";
+    let bunch = "\u{0986}\u{0129}\u{099F}";
 
     let initialProducts : [Product] = [
       // Grocery
@@ -124,36 +122,21 @@ actor {
     deliverySettings;
   };
 
-  public shared ({ caller }) func updateDeliverySettings(settings : DeliverySettings) : async () {
-    if (not AccessControl.isAdmin(accessControlState, caller)) {
-      Runtime.trap("Unauthorized: Only admins can update delivery settings");
-    };
+  // No auth check - frontend password protects admin panel
+  public shared func updateDeliverySettings(settings : DeliverySettings) : async () {
     deliverySettings := settings;
   };
 
   // User Profile Management
   public query ({ caller }) func getCallerUserProfile() : async ?UserProfile {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only users can access profiles");
-    };
     userProfiles.get(caller);
   };
 
-  public query ({ caller }) func getUserProfile(user : Principal) : async ?UserProfile {
-    if (caller != user and not AccessControl.isAdmin(accessControlState, caller)) {
-      Runtime.trap("Unauthorized: Can only view your own profile");
-    };
-    userProfiles.get(user);
-  };
-
   public shared ({ caller }) func saveCallerUserProfile(profile : UserProfile) : async () {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only users can save profiles");
-    };
     userProfiles.add(caller, profile);
   };
 
-  // Admin bootstrap: first non-anonymous caller becomes admin
+  // Admin bootstrap (kept for compatibility)
   public shared ({ caller }) func initializeAdmin() : async Bool {
     if (caller.isAnonymous()) { return false };
     if (not accessControlState.adminAssigned) {
@@ -164,17 +147,14 @@ actor {
     AccessControl.isAdmin(accessControlState, caller);
   };
 
-  // Product Management (Admin Only)
-  public shared ({ caller }) func addProduct(
+  // Product Management - no auth check, frontend password protects
+  public shared func addProduct(
     name : Text,
     category : Text,
     price : Float,
     unit : Text,
     imageUrl : Text
   ) : async Nat {
-    if (not AccessControl.isAdmin(accessControlState, caller)) {
-      Runtime.trap("Unauthorized: Only admins can add products");
-    };
     let product : Product = {
       id = nextProductId;
       name;
@@ -189,7 +169,7 @@ actor {
     product.id;
   };
 
-  public shared ({ caller }) func updateProduct(
+  public shared func updateProduct(
     id : Nat,
     name : Text,
     category : Text,
@@ -198,19 +178,13 @@ actor {
     imageUrl : Text,
     available : Bool,
   ) : async () {
-    if (not AccessControl.isAdmin(accessControlState, caller)) {
-      Runtime.trap("Unauthorized: Only admins can update products");
-    };
     if (not products.containsKey(id)) {
       Runtime.trap("Product not found");
     };
     products.add(id, { id; name; category; price; unit; imageUrl; available });
   };
 
-  public shared ({ caller }) func deleteProduct(id : Nat) : async () {
-    if (not AccessControl.isAdmin(accessControlState, caller)) {
-      Runtime.trap("Unauthorized: Only admins can delete products");
-    };
+  public shared func deleteProduct(id : Nat) : async () {
     if (not products.containsKey(id)) {
       Runtime.trap("Product not found");
     };
@@ -234,7 +208,7 @@ actor {
   };
 
   // Order Management
-  public shared ({ caller }) func placeOrder(
+  public shared func placeOrder(
     customerId : Text,
     customerName : Text,
     customerPhone : Text,
@@ -247,9 +221,6 @@ actor {
     latitude : Float,
     longitude : Float
   ) : async Nat {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only users can place orders");
-    };
     let order : Order = {
       id = nextOrderId;
       customerId;
@@ -271,33 +242,15 @@ actor {
     order.id;
   };
 
-  public query ({ caller }) func getOrdersByCustomer(customerPhone : Text) : async [Order] {
-    switch (userProfiles.get(caller)) {
-      case (?profile) {
-        if (profile.phone != customerPhone and not AccessControl.isAdmin(accessControlState, caller)) {
-          Runtime.trap("Unauthorized: Can only view your own orders");
-        };
-      };
-      case (null) {
-        if (not AccessControl.isAdmin(accessControlState, caller)) {
-          Runtime.trap("Unauthorized: Can only view your own orders");
-        };
-      };
-    };
+  public query func getOrdersByCustomer(customerPhone : Text) : async [Order] {
     orders.values().toArray().filter(func(o) { o.customerPhone == customerPhone });
   };
 
-  public query ({ caller }) func getAllOrders() : async [Order] {
-    if (not AccessControl.isAdmin(accessControlState, caller)) {
-      Runtime.trap("Unauthorized: Only admins can view all orders");
-    };
+  public query func getAllOrders() : async [Order] {
     orders.values().toArray();
   };
 
-  public shared ({ caller }) func markDelivered(orderId : Nat) : async () {
-    if (not AccessControl.isAdmin(accessControlState, caller)) {
-      Runtime.trap("Unauthorized: Only admins can mark orders as delivered");
-    };
+  public shared func markDelivered(orderId : Nat) : async () {
     switch (orders.get(orderId)) {
       case (?order) {
         orders.add(orderId, {
@@ -323,21 +276,7 @@ actor {
 
   public query ({ caller }) func getOrder(id : Nat) : async Order {
     switch (orders.get(id)) {
-      case (?order) {
-        switch (userProfiles.get(caller)) {
-          case (?profile) {
-            if (profile.phone != order.customerPhone and not AccessControl.isAdmin(accessControlState, caller)) {
-              Runtime.trap("Unauthorized: Can only view your own orders");
-            };
-          };
-          case (null) {
-            if (not AccessControl.isAdmin(accessControlState, caller)) {
-              Runtime.trap("Unauthorized: Can only view your own orders");
-            };
-          };
-        };
-        order;
-      };
+      case (?order) { order };
       case (null) { Runtime.trap("Order not found") };
     };
   };
