@@ -24,18 +24,18 @@ import { Loader2, LogOut, Pencil, Plus, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import type { Product } from "../backend.d";
-import { useInternetIdentity } from "../hooks/useInternetIdentity";
 import {
   useAddProduct,
   useAllOrders,
   useDeleteProduct,
   useDeliverySettings,
-  useIsAdmin,
   useMarkDelivered,
   useProducts,
   useUpdateDeliverySettings,
   useUpdateProduct,
 } from "../hooks/useQueries";
+
+const ADMIN_SESSION_KEY = "admin_logged_in";
 
 const CATEGORIES = [
   { id: "Grocery", label: "মুদিখানা" },
@@ -223,8 +223,6 @@ function DeliverySettingsForm() {
 
 export function AdminDashboardPage() {
   const navigate = useNavigate();
-  const { clear } = useInternetIdentity();
-  const { data: isAdmin, isLoading: adminLoading } = useIsAdmin();
   const { data: products = [], isLoading: prodLoading } = useProducts();
   const { data: orders = [], isLoading: orderLoading } = useAllOrders();
   const addProduct = useAddProduct();
@@ -235,8 +233,16 @@ export function AdminDashboardPage() {
   const [addOpen, setAddOpen] = useState(false);
   const [editProduct, setEditProduct] = useState<Product | null>(null);
 
+  // Check admin session
+  useEffect(() => {
+    const isAdmin = localStorage.getItem(ADMIN_SESSION_KEY);
+    if (!isAdmin) {
+      navigate({ to: "/admin" });
+    }
+  }, [navigate]);
+
   const handleLogout = () => {
-    clear();
+    localStorage.removeItem(ADMIN_SESSION_KEY);
     navigate({ to: "/" });
   };
 
@@ -305,32 +311,6 @@ export function AdminDashboardPage() {
       year: "numeric",
     });
   };
-
-  if (adminLoading) {
-    return (
-      <div
-        className="min-h-screen bg-background flex items-center justify-center"
-        data-ocid="admin.loading_state"
-      >
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
-  }
-
-  if (!isAdmin) {
-    return (
-      <div className="min-h-screen bg-background flex flex-col items-center justify-center px-4">
-        <p className="text-4xl mb-3">🚫</p>
-        <p className="font-bold text-lg">অনুমতি নেই</p>
-        <p className="text-sm text-muted-foreground mt-1 mb-4">
-          আপনি অ্যাডমিন নন
-        </p>
-        <Button onClick={() => navigate({ to: "/" })} className="rounded-xl">
-          হোমে ফিরুন
-        </Button>
-      </div>
-    );
-  }
 
   const sortedOrders = [...orders].sort(
     (a, b) => Number(b.timestamp) - Number(a.timestamp),
