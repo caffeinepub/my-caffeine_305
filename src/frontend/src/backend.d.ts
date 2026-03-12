@@ -56,22 +56,22 @@ export enum UserRole {
 export interface backendInterface {
     addProduct(name: string, category: string, price: number, unit: string, imageUrl: string): Promise<bigint>;
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
-    deleteProduct(id: bigint): Promise<void>;
+    deleteProduct(id: bigint): Promise<boolean>;
     getAllOrders(): Promise<Array<Order>>;
     getCallerUserProfile(): Promise<UserProfile | null>;
     getCallerUserRole(): Promise<UserRole>;
     getDeliverySettings(): Promise<DeliverySettings>;
-    getOrder(id: bigint): Promise<Order>;
     getOrdersByCustomer(customerPhone: string): Promise<Array<Order>>;
-    getProduct(id: bigint): Promise<Product>;
+    getProduct(id: bigint): Promise<Product | null>;
     getProducts(): Promise<Array<Product>>;
     getProductsByCategory(category: string): Promise<Array<Product>>;
     getUserProfile(user: Principal): Promise<UserProfile | null>;
     initializeAdmin(): Promise<void>;
     isCallerAdmin(): Promise<boolean>;
-    markDelivered(orderId: bigint): Promise<void>;
+    markDelivered(orderId: bigint): Promise<boolean>;
     placeOrder(customerId: string, customerName: string, customerPhone: string, village: string, items: Array<OrderItem>, subtotal: number, distanceKm: number, deliveryCharge: number, total: number, latitude: number, longitude: number): Promise<bigint>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
+    seedDefaultProducts(): Promise<void>;
     updateDeliverySettings(settings: DeliverySettings): Promise<void>;
-    updateProduct(id: bigint, name: string, category: string, price: number, unit: string, imageUrl: string, available: boolean): Promise<void>;
+    updateProduct(id: bigint, name: string, category: string, price: number, unit: string, imageUrl: string, available: boolean): Promise<boolean>;
 }

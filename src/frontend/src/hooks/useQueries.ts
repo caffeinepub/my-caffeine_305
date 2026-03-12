@@ -239,3 +239,18 @@ export function useUpdateDeliverySettings() {
     },
   });
 }
+
+export function useSeedProducts() {
+  const { actor } = useActor();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async () => {
+      if (!actor) throw new Error("Actor not ready");
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      return (actor as any).seedDefaultProducts();
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["products"] });
+    },
+  });
+}
