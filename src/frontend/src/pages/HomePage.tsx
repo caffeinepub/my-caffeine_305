@@ -11,6 +11,7 @@ const CATEGORIES = [
   { id: "Grocery", label: "মুদিখানা", emoji: "🛒" },
   { id: "Fish", label: "মাছ", emoji: "🐟" },
   { id: "Chicken", label: "মুরগি", emoji: "🍗" },
+  { id: "Meat", label: "মাংস", emoji: "🥩" },
   { id: "Vegetables", label: "সবজি", emoji: "🥬" },
   { id: "Medicine", label: "ওষুধ", emoji: "💊" },
   { id: "Household", label: "গৃহস্থালি", emoji: "🧴" },

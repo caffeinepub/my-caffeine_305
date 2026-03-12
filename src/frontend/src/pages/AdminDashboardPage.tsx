@@ -41,6 +41,7 @@ const CATEGORIES = [
   { id: "Grocery", label: "মুদিখানা" },
   { id: "Fish", label: "মাছ" },
   { id: "Chicken", label: "মুরগি" },
+  { id: "Meat", label: "মাংস" },
   { id: "Vegetables", label: "সবজি" },
   { id: "Medicine", label: "ওষুধ" },
   { id: "Household", label: "গৃহস্থালি" },
@@ -389,6 +390,7 @@ export function AdminDashboardPage() {
                     <DialogTitle>নতুন পণ্য যোগ করুন</DialogTitle>
                   </DialogHeader>
                   <ProductForm
+                    key={addOpen ? "open" : "closed"}
                     initial={EMPTY_FORM}
                     onSubmit={handleAdd}
                     loading={addProduct.isPending}
@@ -476,6 +478,7 @@ export function AdminDashboardPage() {
                           </DialogHeader>
                           {editProduct && (
                             <ProductForm
+                              key={editProduct.id.toString()}
                               initial={{
                                 name: editProduct.name,
                                 category: editProduct.category,
