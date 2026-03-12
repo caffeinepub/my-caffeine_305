@@ -1,0 +1,124 @@
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;600;700&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Forest green primary */
+    --primary: 0.52 0.16 145;
+    --primary-foreground: 1 0 0;
+
+    /* Harvest orange accent */
+    --accent: 0.62 0.19 50;
+    --accent-foreground: 1 0 0;
+
+    /* Warm backgrounds */
+    --background: 0.98 0.005 85;
+    --foreground: 0.18 0.01 260;
+
+    --card: 1 0 0;
+    --card-foreground: 0.18 0.01 260;
+
+    --popover: 1 0 0;
+    --popover-foreground: 0.18 0.01 260;
+
+    --secondary: 0.94 0.015 85;
+    --secondary-foreground: 0.3 0.02 260;
+
+    --muted: 0.94 0.01 100;
+    --muted-foreground: 0.5 0.02 260;
+
+    --destructive: 0.55 0.22 25;
+    --destructive-foreground: 1 0 0;
+
+    --border: 0.88 0.01 120;
+    --input: 0.88 0.01 120;
+    --ring: 0.52 0.16 145;
+
+    --radius: 0.75rem;
+
+    --chart-1: 0.52 0.16 145;
+    --chart-2: 0.62 0.19 50;
+    --chart-3: 0.65 0.15 230;
+    --chart-4: 0.72 0.14 55;
+    --chart-5: 0.48 0.18 300;
+
+    --sidebar: 0.97 0.008 100;
+    --sidebar-foreground: 0.18 0.01 260;
+    --sidebar-primary: 0.52 0.16 145;
+    --sidebar-primary-foreground: 1 0 0;
+    --sidebar-accent: 0.94 0.015 85;
+    --sidebar-accent-foreground: 0.3 0.02 260;
+    --sidebar-border: 0.88 0.01 120;
+    --sidebar-ring: 0.52 0.16 145;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  html {
+    font-family: "Noto Sans Bengali", "Hind Siliguri", sans-serif;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: "Noto Sans Bengali", "Hind Siliguri", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Mobile safe area support */
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom, 0);
+  }
+
+  /* Bottom nav spacing */
+  .main-content {
+    padding-bottom: 5rem;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .gradient-green {
+    background: linear-gradient(
+      135deg,
+      oklch(0.52 0.16 145),
+      oklch(0.42 0.15 155)
+    );
+  }
+
+  .gradient-orange {
+    background: linear-gradient(135deg, oklch(0.65 0.19 55), oklch(0.55 0.2 40));
+  }
+
+  .card-shadow {
+    box-shadow: 0 2px 12px 0 oklch(0 0 0 / 0.08), 0 1px 3px 0
+      oklch(0 0 0 / 0.06);
+  }
+
+  .product-card-hover {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .product-card-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px 0 oklch(0 0 0 / 0.12);
+  }
+
+  /* WhatsApp button */
+  .btn-whatsapp {
+    background-color: #25d366;
+    color: white;
+  }
+
+  .btn-whatsapp:hover {
+    background-color: #1da851;
+  }
+}
